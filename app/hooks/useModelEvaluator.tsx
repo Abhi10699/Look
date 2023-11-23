@@ -17,11 +17,14 @@ export const useModelEvaluator = () => {
     const precisionRecallPoints: Array<PrecisionRecallPoints> = [];
     const predictionsSorted = predictions.sort((a, b) => b - a); // sort in descending order
 
-    predictionsSorted.forEach((prediction) => {
-      if (prediction > 0.5) {
-        // assume its a hit
+    predictionsSorted.forEach((prediction, index) => {
+      const predictedLabel = prediction >= 0.5 ? 1 : 0;
+      // assume its a hit
+      if (predictedLabel == 1 && labels[index] == 1) {
         truePositives += 1;
         falseNegatives -= 1;
+      } else {
+        falsePositives += 1;
       }
 
       precisionRecallPoints.push({

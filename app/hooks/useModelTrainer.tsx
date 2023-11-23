@@ -16,10 +16,12 @@ export const useModelTrainer = () => {
       })
     );
 
-    tf.layers.dense({
-      units: 512,
-      activation: "relu",
-    });
+    rankingModel.add(
+      tf.layers.dense({
+        units: 512,
+        activation: "relu",
+      })
+    );
 
     rankingModel.add(
       tf.layers.dense({
