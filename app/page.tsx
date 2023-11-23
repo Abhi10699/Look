@@ -1,6 +1,5 @@
 "use client";
 import * as tf from "@tensorflow/tfjs";
-
 import { useState, useEffect } from "react";
 import { ImageWindow } from "./components/ImageWindow";
 import { IUnsplashImage } from "./api/images/IUnsplashImageHttp";
@@ -65,7 +64,6 @@ export default function Home() {
           }
         />
       ))}
-
       <button onClick={fitModel}>Train</button>
     </div>
   );
