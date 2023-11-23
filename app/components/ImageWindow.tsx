@@ -1,54 +1,18 @@
-import { FC, useState, useRef, createRef, useEffect } from "react";
-import type { GraphModel, LayersModel, Tensor, Rank } from "@tensorflow/tfjs";
-import * as tf from "@tensorflow/tfjs";
+import { FC, useState, createRef, RefObject } from "react";
 
 type ImageWindowProps = {
   source: string;
   description?: string;
   createdAt?: string;
-  featureExtractor: GraphModel;
-  predictionModel: LayersModel;
 
   // emitters
-  featuresExtracted: (features: Tensor<Rank>) => any;
   imageLiked: (value: number) => any;
+  onImageLoaded: (imageRef: RefObject<HTMLImageElement>) => any;
 };
 
 export const ImageWindow: FC<ImageWindowProps> = (props) => {
   const [liked, setLiked] = useState(false);
-  const [likePredicted, setLikePredicted] = useState(false);
-
   const imageRef = createRef<HTMLImageElement>();
-
-  const extractFeatures = async () => {
-    if (!imageRef.current) {
-      return;
-    }
-    const imageTensor = await tf.browser.fromPixels(imageRef.current).toFloat();
-    const resizedImage = tf.image
-      .resizeBilinear(imageTensor, [224, 224])
-      .expandDims();
-
-    const mobilenetPrediction = await props.featureExtractor.predict(
-      resizedImage
-    );
-
-    return mobilenetPrediction;
-  };
-
-  const handleImageLoad = async () => {
-    const imageFeatures = await extractFeatures();
-    const modelPrediction = props.predictionModel.predict(
-      imageFeatures
-    ) as tf.Tensor;
-    const probablity = await modelPrediction.data();
-
-    if (probablity[0] > 0.5) {
-      setLikePredicted(true);
-    }
-
-    props.featuresExtracted(imageFeatures);
-  };
 
   const handleLike = () => {
     setLiked((previous) => {
@@ -61,15 +25,17 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   return (
     <div className="aspect-square">
       <img
-        onLoad={handleImageLoad}
+        onLoad={(_) => props.onImageLoaded(imageRef)}
         src={props.source}
         alt={props.description || ""}
         ref={imageRef}
         crossOrigin="anonymous"
       />
-      <p className={`${likePredicted ? 'text-green-600' : 'text-red-500'}`}>{
-        likePredicted ? "You will 💖 the Image" : "You will Not Like this Image"
-      }</p>
+      {/* <p className={`${likePredicted ? "text-green-600" : "text-red-500"}`}>
+        {likePredicted
+          ? "You will 💖 the Image"
+          : "You will Not Like this Image"}
+      </p> */}
       <button
         onClick={handleLike}
         className={`w-auto px-2 py-1 rounded-sm text-white ${

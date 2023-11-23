@@ -47,5 +47,18 @@ export const useModelEvaluator = () => {
     return averagePrecision;
   };
 
-  return { calculateAveragePrecision, calculatePrecisionRecall };
+  const computeModelScore = (
+    predictions: Array<number>,
+    labels: Array<number>
+  ) => {
+    const precisionRecallPoints = calculatePrecisionRecall(predictions, labels);
+    const averagePrecision = calculateAveragePrecision(precisionRecallPoints);
+    return averagePrecision;
+  };
+
+  return {
+    calculateAveragePrecision,
+    calculatePrecisionRecall,
+    computeModelScore,
+  };
 };

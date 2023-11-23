@@ -1,49 +1,66 @@
 "use client";
 import * as tf from "@tensorflow/tfjs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, RefObject } from "react";
 import { ImageWindow } from "./components/ImageWindow";
 import { IUnsplashImage } from "./api/images/IUnsplashImageHttp";
-import { loadMobileNetModel } from "./utils";
+
 import { useImageDataset } from "./hooks/useImageDataset";
 import { useImageLoader } from "./hooks/useImageLoader";
 import { useModelTrainer } from "./hooks/useModelTrainer";
+import { useModelEvaluator } from "./hooks/useModelEvaluator";
+import { useFeatureExtractor } from "./hooks/useFeatureExtractor";
 
 export default function Home() {
   const [imageList, setImageList] = useState<Array<IUnsplashImage>>([]);
-  const [mobileNetModel, setMobileNetModel] = useState<tf.GraphModel>();
 
   const imageDataset = useImageDataset({ batchSize: 30 });
   const imageLoader = useImageLoader();
   const modelTrainer = useModelTrainer();
+  const modelEvaluator = useModelEvaluator();
+  const featureExtractor = useFeatureExtractor();
 
   const initApp = async () => {
-    if (!mobileNetModel) {
-      const featureExtractorModel = await loadMobileNetModel();
-      setMobileNetModel(featureExtractorModel);
-    }
-
-    // load images
     const images = await imageLoader.loadImages();
     setImageList(images);
-
-    // setup database
     imageDataset.unsetDataset();
-
-    // setup model
     modelTrainer.loadModel();
   };
 
   const fitModel = async () => {
     const { labelTensors, trainingTensors } = imageDataset.getTrainingData();
-    const history = await modelTrainer.fitModel(trainingTensors, labelTensors);
-    console.log(history);
+    // const history = await modelTrainer.fitModel(trainingTensors, labelTensors);
+
+    // metrics
+
+    const predictions = imageDataset.evaluationLabels;
+    const labels = labelTensors.flatten().arraySync();
+    const modelScore = modelEvaluator.computeModelScore(predictions, labels);
+    console.log(predictions, labels, modelScore);
+  };
+
+  const handleImageLoad = async (
+    imageRef: RefObject<HTMLImageElement>,
+    index: number
+  ) => {
+    const imageFeatures = featureExtractor.extractImageFeatures(imageRef);
+    imageDataset.updateTrainingSample(imageFeatures, index);
+
+    // model predictions
+
+    if (modelTrainer.rankerModel) {
+      const modelPrediction = modelTrainer.rankerModel.predict(
+        imageFeatures as tf.Tensor
+      ) as tf.Tensor;
+      const probablity = await modelPrediction.data();
+      imageDataset.updateEvaluationLabels(probablity[0], index);
+    }
   };
 
   useEffect(() => {
     initApp();
   }, []);
 
-  if (!mobileNetModel) {
+  if (!featureExtractor.featureExtractorModel) {
     return <div>Loading...</div>;
   }
 
@@ -54,14 +71,10 @@ export default function Home() {
           key={index}
           source={data.urls.small}
           description={data.description}
-          featureExtractor={mobileNetModel}
-          featuresExtracted={(feature) =>
-            imageDataset.updateTrainingSample(feature, index)
-          }
-          predictionModel={modelTrainer.rankerModel}
           imageLiked={(value) =>
             imageDataset.updateTrainingLabels(value, index)
           }
+          onImageLoaded={(e) => handleImageLoad(e, index)}
         />
       ))}
       <button onClick={fitModel}>Train</button>
