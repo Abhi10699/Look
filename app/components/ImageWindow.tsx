@@ -25,7 +25,7 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   return (
     <div className="h-screen bg-black flex flex-col justify-center">
       <img
-        onDoubleClick={e => alert("Double tap")}
+        onDoubleClick={handleLike}
         className="aspect-auto min-h-fit"
         onLoad={(_) => props.onImageLoaded(imageRef)}
         src={props.source}
