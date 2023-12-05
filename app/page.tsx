@@ -9,6 +9,7 @@ import { useImageLoader } from "./hooks/useImageLoader";
 import { useModelTrainer } from "./hooks/useModelTrainer";
 import { useModelEvaluator } from "./hooks/useModelEvaluator";
 import { useFeatureExtractor } from "./hooks/useFeatureExtractor";
+import { ImageScroller } from "./components/ImageScroller";
 
 export default function Home() {
   const [imageList, setImageList] = useState<Array<IUnsplashImage>>([]);
@@ -65,19 +66,21 @@ export default function Home() {
   }
 
   return (
-    <div className="">
-      {imageList.map((data, index) => (
-        <ImageWindow
-          key={index}
-          source={data.urls.small}
-          description={data.description}
-          imageLiked={(value) =>
-            imageDataset.updateTrainingLabels(value, index)
-          }
-          onImageLoaded={(e) => handleImageLoad(e, index)}
-        />
-      ))}
-      <button onClick={fitModel}>Train</button>
+    <div className="mx-auto">
+      {/* <button onClick={fitModel}>Train</button> */}
+      <ImageScroller>
+        {imageList.map((data, index) => (
+          <ImageWindow
+            key={index}
+            source={data.urls.regular}
+            description={data.description}
+            imageLiked={(value) =>
+              imageDataset.updateTrainingLabels(value, index)
+            }
+            onImageLoaded={(e) => handleImageLoad(e, index)}
+          />
+        ))}
+      </ImageScroller>
     </div>
   );
 }

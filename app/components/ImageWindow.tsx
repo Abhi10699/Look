@@ -23,27 +23,16 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   };
 
   return (
-    <div className="aspect-square">
+    <div className="h-screen bg-black flex flex-col justify-center">
       <img
+        onDoubleClick={e => alert("Double tap")}
+        className="aspect-auto min-h-fit"
         onLoad={(_) => props.onImageLoaded(imageRef)}
         src={props.source}
         alt={props.description || ""}
         ref={imageRef}
         crossOrigin="anonymous"
       />
-      {/* <p className={`${likePredicted ? "text-green-600" : "text-red-500"}`}>
-        {likePredicted
-          ? "You will 💖 the Image"
-          : "You will Not Like this Image"}
-      </p> */}
-      <button
-        onClick={handleLike}
-        className={`w-auto px-2 py-1 rounded-sm text-white ${
-          !liked ? "bg-blue-600" : "bg-red-600"
-        }`}
-      >
-        {!liked ? "Like" : "Unlike"}
-      </button>
     </div>
   );
 };

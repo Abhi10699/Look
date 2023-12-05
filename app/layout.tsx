@@ -16,7 +16,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`w-full mx-auto px-1 py-1`}>{children}</body>
+      <body>
+        {/* <section className={``}>
+          <div className="w-full flex-1">{children}</div>
+        </section> */}
+        <div className="container mx-auto lg:w-2/3 w-screen">
+          {/* <div className="p-4 bg-white w-3/12 h-screen sticky top-0">
+            <h3 className="font-bold text-xl">IDENTIFY 🤖</h3>
+          </div> */}
+          {children}
+        </div>
+      </body>
     </html>
   );
 }
