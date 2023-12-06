@@ -5,6 +5,7 @@ import { MotionProps } from "framer-motion";
 interface HeartButtonProps extends SpringButtonBaseProps {
   liked?: boolean;
   likeClicked?: (clicked: boolean) => any;
+  extraClasses?: string
 }
 
 export const HeartButton: FC<HeartButtonProps> = (props) => {

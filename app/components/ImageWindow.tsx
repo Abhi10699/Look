@@ -1,4 +1,5 @@
 import { FC, useState, createRef, RefObject } from "react";
+import { HeartButton } from "./RoundedButton/HeartButton";
 
 type ImageWindowProps = {
   source: string;
@@ -23,7 +24,7 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   };
 
   return (
-    <div className="h-screen bg-black flex flex-col justify-center">
+    <div className="h-screen bg-black flex flex-col justify-center relative">
       <img
         onDoubleClick={handleLike}
         className="object-fill min-h-fit"
@@ -33,20 +34,17 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
         ref={imageRef}
         crossOrigin="anonymous"
       />
-
-      {/* <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="red"
-        viewBox="0 0 24 24"
-        strokeWidth={1}
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-        />
-      </svg> */}
+      <div className="absolute bottom-0 w-screen h-[210px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
+        <div className="px-9 mt-16">
+          <div className="space-y-1 flex flex-col">
+            <h3 className="font-black text-white text-2xl">deeplow_21c</h3>
+            <span className="text-slate-300">#toronto #city #skyline</span>
+          </div>
+          <button className="mt-3 text-white w-fit border-2 stroke-white rounded-[8px] px-7 py-2 font-black text-[16px]">
+            Like
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

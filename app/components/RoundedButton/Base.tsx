@@ -12,7 +12,7 @@ export const RoundedButtonBase = forwardRef<
 >((props, ref) => (
   <button
     ref={ref}
-    className={`cursor-pointer w-fit p-3 bg-black text-white text-center rounded-full shadow-lg stroke-white border ${props.extraClasses}`}
+    className={`cursor-pointer w-fit p-3  text-white text-center rounded-[18px] shadow-lg stroke-white border-2 ${props.extraClasses}`}
     {...props}
   >
     {props.children}
