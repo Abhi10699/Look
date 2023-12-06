@@ -68,7 +68,7 @@ export default function Home() {
   return (
     <div className="mx-auto">
       {/* <button onClick={fitModel}>Train</button> */}
-      <ImageScroller>
+      <ImageScroller childrenLength={imageList.length}>
         {imageList.map((data, index) => (
           <ImageWindow
             key={index}
