@@ -2,7 +2,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({ weight: ["600", "400", "900"], subsets: ["latin"] });
 export const Navbar = () => {
   return (
-    <div className="p-4 fixed z-10 w-screen h-20 flex flex-row items-center justify-between bg-gradient-to-b from-[rgba(0,0,0,0.7)] via-[rgba(0,0,0,0.5)]   to-[rgba(0,0,0,0.0)]">
+    <div className="py-4 px-9 fixed z-10 w-screen h-20 flex flex-row items-center justify-between bg-gradient-to-b from-[rgba(0,0,0,0.7)] via-[rgba(0,0,0,0.5)]   to-[rgba(0,0,0,0.0)]">
       <h3
         className={`text-white font-black text-[32px] tracking-widest${inter.className}`}
       >

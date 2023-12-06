@@ -1,5 +1,5 @@
-import { forwardRef, PropsWithChildren, ButtonHTMLAttributes } from "react";
-import { MotionProps, motion } from "framer-motion";
+import { forwardRef, ButtonHTMLAttributes } from "react";
+import { motion } from "framer-motion";
 
 export interface RoundedButtonBaseProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {

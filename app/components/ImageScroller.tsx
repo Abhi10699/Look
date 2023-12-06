@@ -1,9 +1,9 @@
 import { useState, PropsWithChildren, FC, createRef, useEffect } from "react";
 import { ArrowButton } from "./RoundedButton/ArrowButton";
-import { HeartButton } from "./RoundedButton/HeartButton";
 
 type ImageScrollerProps = {
   childrenLength: number;
+  
 };
 
 export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
