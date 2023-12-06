@@ -67,13 +67,11 @@ export default function Home() {
 
   return (
     <div className="mx-auto">
-      {/* <button onClick={fitModel}>Train</button> */}
       <ImageScroller childrenLength={imageList.length}>
         {imageList.map((data, index) => (
           <ImageWindow
             key={index}
-            source={data.urls.regular}
-            description={data.description}
+            imageData={data}
             imageLiked={(value) =>
               imageDataset.updateTrainingLabels(value, index)
             }

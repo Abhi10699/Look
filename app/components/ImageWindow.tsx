@@ -1,11 +1,9 @@
 import { FC, useState, createRef, RefObject } from "react";
 import { HeartButton } from "./RoundedButton/HeartButton";
+import { IUnsplashImage } from "../api/images/IUnsplashImageHttp";
 
 type ImageWindowProps = {
-  source: string;
-  description?: string;
-  createdAt?: string;
-
+  imageData: IUnsplashImage;
   // emitters
   imageLiked: (value: number) => any;
   onImageLoaded: (imageRef: RefObject<HTMLImageElement>) => any;
@@ -29,15 +27,15 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
         onDoubleClick={handleLike}
         className="object-fill min-h-fit"
         onLoad={(_) => props.onImageLoaded(imageRef)}
-        src={props.source}
-        alt={props.description || ""}
+        src={props.imageData.urls.regular}
+        alt={props.imageData.description || ""}
         ref={imageRef}
         crossOrigin="anonymous"
       />
       <div className="absolute bottom-0 w-screen h-[210px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
         <div className="px-9 mt-16">
           <div className="space-y-1 flex flex-col">
-            <h3 className="font-black text-white text-2xl">deeplow_21c</h3>
+            <h3 className="font-black text-white text-2xl">{props.imageData.user.name}</h3>
             <span className="text-slate-300">#toronto #city #skyline</span>
           </div>
           <button className="mt-3 text-white w-fit border-2 stroke-white rounded-[8px] px-7 py-2 font-black text-[16px]">

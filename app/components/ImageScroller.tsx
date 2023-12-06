@@ -46,7 +46,7 @@ export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
   return (
     <div className="relative overflow-hidden max-h-screen" ref={containerRef}>
       {children.map((elem) => elem)}
-      <div className="fixed flex flex-col w-screen justify-center items-end my-auto bottom-10 h-fit space-y-3 px-8">
+      <div className="fixed flex flex-col w-screen justify-center items-end my-auto bottom-10 h-fit space-y-10 px-8">
         <ArrowButton
           initial={{ y: 0 }}
           animate={{ y: 0 }}
