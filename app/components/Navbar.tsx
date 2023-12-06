@@ -6,7 +6,7 @@ export const Navbar = () => {
       <h3
         className={`text-white font-extrabold text-xl tracking-widest${dm_sans.className}`}
       >
-        Look
+        Look ✨
       </h3>
     </div>
   );

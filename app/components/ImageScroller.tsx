@@ -1,6 +1,6 @@
 import { useState, PropsWithChildren, FC, createRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import { SpringNextImageButton } from "./RoundedButton";
+import { ArrowButton } from "./RoundedButton/ArrowButton";
+import { HeartButton } from "./RoundedButton/HeartButton";
 
 type ImageScrollerProps = {
   childrenLength: number;
@@ -40,23 +40,27 @@ export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
     scrollElementToView();
   }, [activeElementIndex]);
 
+  if (!Array.isArray(children)) {
+    throw new Error("Expected a Scrollable Children");
+  }
   return (
     <div className="relative overflow-hidden max-h-screen" ref={containerRef}>
-      {Array.isArray(children) &&
-        children.map((elem, idx) => <motion.div>{elem}</motion.div>)}
-      <div className="fixed flex flex-row w-screen justify-center items-center my-auto bottom-10 h-fit space-x-5">
-        <SpringNextImageButton
-          initial={{ y: 10 }}
-          animate={{ y: 0 }}
-          onClick={showNewElement}
-          className="stroke-white border"
-        />
-        <SpringNextImageButton
-          initial={{ y: -10 }}
+      {children.map((elem) => elem)}
+      <div className="fixed flex flex-col w-screen justify-center items-end my-auto bottom-20 h-fit space-y-3 px-8">
+        <ArrowButton
+          initial={{ y: 0 }}
           animate={{ y: 0 }}
           onClick={showPreviousElement}
           inverted
-          className="stroke-white border"
+        />
+        <HeartButton
+          initial={{ y: 0 }}
+          animate={{ y: 0 }}
+        />
+        <ArrowButton
+          initial={{ y: 0 }}
+          animate={{ y: 0 }}
+          onClick={showNewElement}
         />
       </div>
     </div>
