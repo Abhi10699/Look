@@ -1,4 +1,5 @@
 import { IUnsplashImage } from "../api/images/IUnsplashImageHttp";
+import { ImageViewModel } from "../models/ImageViewModel";
 
 export const useImageLoader = () => {
   const loadImages = async () => {
@@ -13,7 +14,9 @@ export const useImageLoader = () => {
       userId: string;
     };
 
-    return imageArr.images;
+    return imageArr.images.map((imageObj) =>
+      ImageViewModel.mapFromHttpResponse(imageObj)
+    );
   };
 
   return {

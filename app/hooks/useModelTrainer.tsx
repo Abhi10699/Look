@@ -76,6 +76,7 @@ export const useModelTrainer = () => {
     setIsTraining(true);
     const trainingHistory = await rankerModel.fit(inputs, labels, {
       epochs: 10,
+      batchSize: 8,
       shuffle: true,
       callbacks: {
         onEpochEnd(epoch, logs) {

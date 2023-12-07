@@ -1,12 +1,15 @@
 import { FC, useState, createRef, RefObject } from "react";
-import { HeartButton } from "./RoundedButton/HeartButton";
-import { IUnsplashImage } from "../api/images/IUnsplashImageHttp";
+import { ImageViewModel } from "../models/ImageViewModel";
+import { ImageLikeBtn } from "./ImageLikeBtn";
 
 type ImageWindowProps = {
-  imageData: IUnsplashImage;
+  imageData: ImageViewModel;
   // emitters
-  imageLiked: (value: number) => any;
-  onImageLoaded: (imageRef: RefObject<HTMLImageElement>) => any;
+  imageLiked: (imageData: ImageViewModel, liked: boolean) => any;
+  onImageLoaded: (
+    imageRef: RefObject<HTMLImageElement>,
+    imagData: ImageViewModel
+  ) => any;
 };
 
 export const ImageWindow: FC<ImageWindowProps> = (props) => {
@@ -16,7 +19,7 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   const handleLike = () => {
     setLiked((previous) => {
       const newVal = !previous;
-      props.imageLiked(Number(newVal));
+      props.imageLiked(props.imageData, newVal);
       return newVal;
     });
   };
@@ -26,8 +29,8 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
       <img
         onDoubleClick={handleLike}
         className="object-fill min-h-fit"
-        onLoad={(_) => props.onImageLoaded(imageRef)}
-        src={props.imageData.urls.regular}
+        onLoad={(_) => props.onImageLoaded(imageRef, props.imageData)}
+        src={props.imageData.source}
         alt={props.imageData.description || ""}
         ref={imageRef}
         crossOrigin="anonymous"
@@ -35,12 +38,16 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
       <div className="absolute bottom-0 w-screen h-[210px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
         <div className="px-9 mt-16">
           <div className="space-y-1 flex flex-col">
-            <h3 className="font-black text-white text-2xl">{props.imageData.user.name}</h3>
+            <h3 className="font-black text-white text-2xl">
+              {props.imageData.username}
+            </h3>
             <span className="text-slate-300">#toronto #city #skyline</span>
           </div>
-          <button className="mt-3 text-white w-fit border-2 stroke-white rounded-[8px] px-7 py-2 font-black text-[16px]">
-            Like
-          </button>
+          <ImageLikeBtn
+            onClick={handleLike}
+            liked={liked}
+            likepredicted={props.imageData.likePredicted}
+          />
         </div>
       </div>
     </div>

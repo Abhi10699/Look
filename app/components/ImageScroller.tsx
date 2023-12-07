@@ -1,16 +1,30 @@
 import { useState, PropsWithChildren, FC, createRef, useEffect } from "react";
 import { ArrowButton } from "./RoundedButton/ArrowButton";
+import { ModelStatusBtn } from "./RoundedButton/ModelStatusBtn";
+import { ImageViewModel } from "../models/ImageViewModel";
+
+export type ScrollListenerPayload = {
+  activeElement: number;
+  visitedLog: Array<number>;
+};
 
 type ImageScrollerProps = {
   childrenLength: number;
-  
+  scrollListener?: (payload: ScrollListenerPayload) => void;
 };
 
 export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
   children,
   childrenLength,
+  scrollListener,
 }) => {
   const [activeElementIndex, setActiveElementIndex] = useState(0);
+  const [scrollTracker, setScrollTracker] = useState(() => {
+    const arr = new Array(childrenLength).fill(0);
+    arr[0] = 1;
+    return arr;
+  });
+
   const containerRef = createRef<HTMLDivElement>();
 
   const showNewElement = () => {
@@ -34,10 +48,25 @@ export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
       behavior: "smooth",
       block: "center",
     });
+
+    // update scroll tracker
+    markElementAsVisited(activeElementIndex);
+  };
+
+  const markElementAsVisited = (newIndex: number) => {
+    const scrollTrackerCpy = [...scrollTracker];
+    scrollTrackerCpy[newIndex] = 1;
+    setScrollTracker(scrollTrackerCpy);
   };
 
   useEffect(() => {
     scrollElementToView();
+    if (scrollListener != undefined) {
+      scrollListener({
+        activeElement: activeElementIndex,
+        visitedLog: scrollTracker,
+      });
+    }
   }, [activeElementIndex]);
 
   if (!Array.isArray(children)) {
@@ -47,16 +76,18 @@ export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
     <div className="relative overflow-hidden max-h-screen" ref={containerRef}>
       {children.map((elem) => elem)}
       <div className="fixed flex flex-col w-screen justify-center items-end my-auto bottom-10 h-fit space-y-10 px-8">
+        <ModelStatusBtn />
         <ArrowButton
           initial={{ y: 0 }}
           animate={{ y: 0 }}
           onClick={showPreviousElement}
-          inverted
+          inverted={true}
         />
         <ArrowButton
           initial={{ y: 0 }}
           animate={{ y: 0 }}
           onClick={showNewElement}
+          inverted={false}
         />
       </div>
     </div>
