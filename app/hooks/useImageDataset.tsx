@@ -1,3 +1,6 @@
+
+// THIS HOOK IS DEPRECATED
+
 import { useState } from "react";
 import * as tf from "@tensorflow/tfjs";
 

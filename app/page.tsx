@@ -23,8 +23,6 @@ export default function Home() {
   // NEW CODE
 
   const imageDatasetV2 = useImageDatasetV2();
-
-  const imageDataset = useImageDataset({ batchSize: 30 });
   const imageLoader = useImageLoader();
   const modelTrainer = useModelTrainer();
   const modelEvaluator = useModelEvaluator();
@@ -33,13 +31,19 @@ export default function Home() {
   const initApp = async () => {
     const images = await imageLoader.loadImages();
     setImageList(images);
-    imageDataset.unsetDataset();
     modelTrainer.loadModel();
   };
 
+  const fetchNewImages = async () => {
+    const images = await imageLoader.loadImages();
+    setImageList((previous) => [...previous, ...images]);
+  };
+
   const fitModel = async () => {
-    const { labelTensors, trainingTensors } =
-      imageDatasetV2.buildTrainingBatch(30);
+    const { labelTensors, trainingTensors } = imageDatasetV2.buildTrainingBatch(
+      imageList,
+      100
+    );
     const history = await modelTrainer.fitModel(trainingTensors, labelTensors);
 
     // metrics
@@ -55,18 +59,24 @@ export default function Home() {
     imageData: ImageViewModel
   ) => {
     const imageFeatures = featureExtractor.extractImageFeatures(imageRef);
-    imageDatasetV2.addTrainingSample({
-      feature: imageFeatures,
-      label: false, // user hasn't seen this image yet so not liked
-      uuid: imageData.id,
-      usedInTraining: false,
-    });
-
-    // model predictions
+    imageData.setImageFeatureTensor(imageFeatures);
 
     const likePrediction = await predictImage(imageFeatures);
     if (likePrediction) {
-      imageData.setLikePredicted(likePrediction[0] > 0.5);
+      const willLikeImage = likePrediction[0] > 0.75;
+      if (willLikeImage) {
+        setImageList((prev) => {
+          const newState = prev.map((item) => {
+            if (item.id == imageData.id) {
+              item.setLikePredicted(true);
+              return item;
+            }
+            return item;
+          });
+
+          return newState;
+        });
+      }
     }
   };
 
@@ -83,18 +93,33 @@ export default function Home() {
   };
 
   const handleScrollListener = (payload: ScrollListenerPayload) => {
-    // check if everything is visited
-    if (payload.visitedLog.length != 30 || modelTrainer.isTraining) {
-      return;
+    // mark current element as visited first
+
+    console.log(imageList);
+    if (!imageList.length) return;
+
+    const currElem = imageList[payload.activeElement];
+    currElem.setImageVisited(true);
+
+    // we have to take care of triggering the training and loading new functions from within this function
+    const totalImagesNotVisited = imageList.reduce((prev, curr) => {
+      if (!curr.imageVisited) {
+        return prev + 1;
+      }
+      return prev;
+    }, 0);
+
+    if (totalImagesNotVisited <= 5) {
+      fetchNewImages();
     }
-    const allVisited = payload.visitedLog.every((visited) => visited == 1);
-    if (allVisited) {
+
+    const imageVisitedCount = imageList.length - totalImagesNotVisited;
+
+  
+    console.log(imageVisitedCount);
+    if (imageVisitedCount == 100) {
       fitModel();
     }
-  };
-
-  const handleImageLike = (imageData: ImageViewModel, liked: boolean) => {
-    imageDatasetV2.updateTrainingSample(imageData.id, liked);
   };
 
   useEffect(() => {
@@ -115,7 +140,6 @@ export default function Home() {
           <ImageWindow
             key={index}
             imageData={data}
-            imageLiked={handleImageLike}
             onImageLoaded={(e, imageData) => handleImageLoad(e, imageData)}
           />
         ))}

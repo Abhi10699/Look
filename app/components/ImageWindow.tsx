@@ -1,11 +1,12 @@
-import { FC, useState, createRef, RefObject } from "react";
+import { FC, useState, createRef, RefObject, useEffect } from "react";
 import { ImageViewModel } from "../models/ImageViewModel";
 import { ImageLikeBtn } from "./ImageLikeBtn";
+import { Prosto_One } from "next/font/google";
 
 type ImageWindowProps = {
   imageData: ImageViewModel;
   // emitters
-  imageLiked: (imageData: ImageViewModel, liked: boolean) => any;
+  imageLiked?: (imageData: ImageViewModel, liked: boolean) => any;
   onImageLoaded: (
     imageRef: RefObject<HTMLImageElement>,
     imagData: ImageViewModel
@@ -19,7 +20,10 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   const handleLike = () => {
     setLiked((previous) => {
       const newVal = !previous;
-      props.imageLiked(props.imageData, newVal);
+      if (props.imageLiked) {
+        props.imageLiked(props.imageData, newVal);
+      }
+      props.imageData.setImageLiked(newVal);
       return newVal;
     });
   };

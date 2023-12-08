@@ -6,7 +6,7 @@ interface SpringNextImageButtonProps extends SpringButtonBaseProps {
 }
 
 export const ModelStatusBtn: FC<SpringNextImageButtonProps> = (props) => {
-  const [chatBubbleActive, setChatBubbleActive] = useState(true);
+  const [chatBubbleActive, setChatBubbleActive] = useState(false);
 
   return (
     <SpringButtonBase
