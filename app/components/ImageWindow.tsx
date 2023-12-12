@@ -1,7 +1,6 @@
 import { FC, useState, createRef, RefObject, useEffect } from "react";
 import { ImageViewModel } from "../models/ImageViewModel";
 import { ImageLikeBtn } from "./ImageLikeBtn";
-import { Prosto_One } from "next/font/google";
 
 type ImageWindowProps = {
   imageData: ImageViewModel;
@@ -45,7 +44,7 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
             <h3 className="font-black text-white text-2xl">
               {props.imageData.username}
             </h3>
-            <span className="text-slate-300">#toronto #city #skyline</span>
+            <span className="text-slate-300">{props.imageData.description}</span>
           </div>
           <ImageLikeBtn
             onClick={handleLike}

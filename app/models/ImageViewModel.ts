@@ -16,7 +16,7 @@ export class ImageViewModel {
 
   static mapFromHttpResponse(response: IUnsplashImage): ImageViewModel {
     const model = new ImageViewModel();
-    model.description = response.description;
+    model.description = response.alt_description;
     model.id = response.id;
     model.source = response.urls.regular;
     model.username = response.user.username;

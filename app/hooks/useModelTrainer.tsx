@@ -1,7 +1,12 @@
 import { useState } from "react";
 import * as tf from "@tensorflow/tfjs";
+import { ImageExtractedFeatureTensorType } from "./useImageDatasetV2";
+import { ImageViewModel } from "../models/ImageViewModel";
 
-export const useModelTrainer = () => {
+type useModelTrainerProps = {
+  trainingBatchSize: number;
+};
+export const useModelTrainer = (props: useModelTrainerProps) => {
   const [rankerModel, setRankerModel] = useState<tf.LayersModel>();
   const [isTraining, setIsTraining] = useState(false);
 
@@ -69,31 +74,75 @@ export const useModelTrainer = () => {
     }
   };
 
-  const fitModel = async (inputs: tf.Tensor, labels: tf.Tensor) => {
+  const fitModel = async (trainingSamples: ImageViewModel[]) => {
     if (!rankerModel) return;
+
+    const { trainingTensors, labelTensors } =
+      buildTrainingBatch(trainingSamples);
 
     // fit model
     setIsTraining(true);
-    const trainingHistory = await rankerModel.fit(inputs, labels, {
-      epochs: 10,
-      batchSize: 8,
-      shuffle: true,
-      callbacks: {
-        onEpochEnd(epoch, logs) {
-          console.log(`Epoch: ${epoch} ==> Loss:`, logs);
-        },
+    const trainingHistory = await rankerModel.fit(
+      trainingTensors,
+      labelTensors,
+      {
+        epochs: 10,
+        shuffle: true,
+        callbacks: {
+          onEpochEnd(epoch, logs) {
+            console.log(`Epoch: ${epoch} ==> Loss:`, logs);
+          },
 
-        async onTrainEnd() {
-          // save model
-          await saveModel();
+          async onTrainEnd() {
+            // save model
+            await saveModel();
 
-          // notify frontend
-          setIsTraining(false);
+            // notify frontend
+            setIsTraining(false);
+          },
         },
-      },
-    });
+      }
+    );
 
     return trainingHistory;
+  };
+
+  const buildTrainingBatch = (samples: ImageViewModel[]) => {
+    if (samples.length < props.trainingBatchSize) {
+      throw new Error("Not enough training samples!");
+    }
+
+    const trainingSamples = samples
+      .filter((sample) => !sample.imageUsedInTraining)
+      .map((sample) => {
+        sample.setImageUsedInTraining(true);
+        return {
+          features: sample.imageFeatureTensor,
+          label: Number(sample.imageLiked),
+        };
+      });
+
+    const batchSamples = trainingSamples.slice(0, props.trainingBatchSize);
+    const trainingTensors = tf.concat(
+      batchSamples.map((samples) => samples.features) as Array<tf.Tensor>
+    );
+
+    const labelTensors = tf.tensor2d(
+      batchSamples.map((sample) => sample.label),
+      [batchSamples.length, 1]
+    );
+
+    return { trainingTensors, labelTensors };
+  };
+
+  const predict = async (imageFeatures: ImageExtractedFeatureTensorType) => {
+    if (rankerModel) {
+      const modelPrediction = rankerModel.predict(
+        imageFeatures as tf.Tensor
+      ) as tf.Tensor;
+      const probablity = await modelPrediction.data();
+      return probablity;
+    }
   };
 
   return {
@@ -102,5 +151,6 @@ export const useModelTrainer = () => {
     saveModel,
     isTraining,
     rankerModel,
+    predict,
   };
 };

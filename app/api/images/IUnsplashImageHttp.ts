@@ -1,6 +1,7 @@
 export interface IUnsplashImage {
   id: string;
   created_at: string;
+  alt_description: string;
   updated_at: string;
   width: number;
   height: number;
