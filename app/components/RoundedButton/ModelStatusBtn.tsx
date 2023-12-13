@@ -22,7 +22,7 @@ export const ModelStatusBtn: FC<SpringNextImageButtonProps> = (props) => {
       <span className="text-lg">🤖</span>
       {chatBubbleActive && (
         <div className="absolute right-9 bottom-5 chat chat-end">
-          <div className="chat-bubble w-56 bg-white text-black">
+          <div className="chat-bubble w-56 bg-white text-black cursor-default pointer-events-auto">
             Look.ai thinks You will ❤️ this Picture
             {/* Beep.. Boop.. I'm Training  */}
           </div>

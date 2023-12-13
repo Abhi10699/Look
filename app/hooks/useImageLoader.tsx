@@ -45,21 +45,27 @@ export const useImageManager = (
   };
 
   const buildTrainingBatch = () => {
-    const samples = images.filter((sample) => !sample.imageUsedInTraining);
+    const samples = images.filter(
+      (sample) => !sample.imageUsedInTraining && sample.imageVisited
+    );
+
+    console.log(samples, images);
 
     if (samples.length < props.trainingBatchSize) {
       throw new Error("Not enough training samples!");
     }
 
-    const trainingSamples = samples.map((sample) => {
-      sample.setImageUsedInTraining(true);
-      return {
-        features: sample.imageFeatureTensor,
-        label: Number(sample.imageLiked),
-      };
-    });
+    const trainingSamples = samples
+      .slice(0, props.trainingBatchSize)
+      .map((sample) => {
+        sample.setImageUsedInTraining(true);
+        return {
+          features: sample.imageFeatureTensor,
+          label: Number(sample.imageLiked),
+        };
+      });
 
-    return trainingSamples.slice(0, props.trainingBatchSize);
+    return trainingSamples;
   };
 
   useEffect(() => {

@@ -18,10 +18,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="container mx-auto lg:w-2/3 w-screen">
-          <Navbar />
-          {children}
-        </div>
+        <Navbar />
+        {children}
       </body>
     </html>
   );

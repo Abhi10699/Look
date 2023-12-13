@@ -13,7 +13,7 @@ import { useModelHandler } from "./hooks/useModelHandler";
 export default function Home() {
   const { images, triggerFetch, updateArrayField, buildTrainingBatch } =
     useImageManager({
-      trainingBatchSize: 100,
+      trainingBatchSize: 10,
     });
 
   const { predict, train } = useModelHandler();
@@ -52,7 +52,7 @@ export default function Home() {
     totalImagesNotVisited <= 5 && triggerFetch();
 
     // train model every 100 steps
-    if (payload.activeElement % 100 == 0) {
+    if (payload.activeElement != 0 && payload.activeElement % 10 == 0 ) {
       train(buildTrainingBatch());
     }
   };

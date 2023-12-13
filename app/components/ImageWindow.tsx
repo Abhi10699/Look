@@ -28,23 +28,27 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   };
 
   return (
-    <div className="h-screen bg-black flex flex-col justify-center relative">
-      <img
-        onDoubleClick={handleLike}
-        className="object-fill min-h-fit"
-        onLoad={(_) => props.onImageLoaded(imageRef, props.imageData)}
-        src={props.imageData.source}
-        alt={props.imageData.description || ""}
-        ref={imageRef}
-        crossOrigin="anonymous"
-      />
-      <div className="absolute bottom-0 w-screen h-[210px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
-        <div className="px-9 mt-16">
+    <div className="min-h-screen bg-black flex flex-col justify-center relative">
+      <div className="flex items-center justify-center h-full">
+        <img
+          onDoubleClick={handleLike}
+          className="object-fill max-h-screen max-w-screen"
+          onLoad={(_) => props.onImageLoaded(imageRef, props.imageData)}
+          src={props.imageData.source}
+          alt={props.imageData.description || ""}
+          ref={imageRef}
+          crossOrigin="anonymous"
+        />
+      </div>
+      <div className="absolute w-screen bottom-0 h-[150px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
+        <div className="px-9">
           <div className="space-y-1 flex flex-col">
             <h3 className="font-black text-white text-2xl">
               {props.imageData.username}
             </h3>
-            <span className="text-slate-300">{props.imageData.description}</span>
+            <span className="text-slate-300">
+              {props.imageData.description}
+            </span>
           </div>
           <ImageLikeBtn
             onClick={handleLike}
