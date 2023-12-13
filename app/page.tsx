@@ -9,22 +9,40 @@ import {
   ScrollListenerPayload,
 } from "./components/ImageScroller";
 import { ImageViewModel } from "./models/ImageViewModel";
+import { useWebWorker } from "./hooks/useWebWorker";
+import { tensor } from "@tensorflow/tfjs";
 
 export default function Home() {
   const { images, triggerFetch, updateArrayField } = useImageManager();
-  const { fitModel, predict, loadModel } = useModelTrainer({
-    trainingBatchSize: 10,
-  });
+  const { predict, loadModel, rankerModel, buildTrainingBatch } =
+    useModelTrainer({
+      trainingBatchSize: 10,
+    });
   const featureExtractor = useFeatureExtractor();
+  const { postMessage } = useWebWorker({
+    recieveMessage(data) {
+      console.log(data);
+    },
+  });
+
+  const fitModel = async (trainingSamples: ImageViewModel[]) => {
+    const { batchSamples } = buildTrainingBatch(trainingSamples);
+    postMessage({
+      request: "TRAIN_MODEL",
+      batchSamples,
+    });
+  };
 
   const handleImageLoad = async (
     imageRef: RefObject<HTMLImageElement>,
     imageData: ImageViewModel
   ) => {
-    const imageFeatures = featureExtractor.extractImageFeatures(imageRef);
+    // TODO: REFACTOR THIS MESS
+    const imageFeatures = await featureExtractor.extractImageFeatures(imageRef);
     imageData.setImageFeatureTensor(imageFeatures);
 
-    const likePrediction = await predict(imageFeatures);
+    const inputTensor = tensor(imageFeatures, [1, 1280]);
+    const likePrediction = await predict(inputTensor);
 
     if (!likePrediction) return;
 
@@ -51,7 +69,7 @@ export default function Home() {
     totalImagesNotVisited <= 5 && triggerFetch();
 
     const imageVisitedCount = images.length - totalImagesNotVisited;
-    const history = imageVisitedCount == 5 && (await fitModel(images));
+    const history = imageVisitedCount == 10 && (await fitModel(images));
   };
 
   useEffect(() => {

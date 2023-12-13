@@ -68,43 +68,10 @@ export const useModelTrainer = (props: useModelTrainerProps) => {
       console.log("Loading Cached Model");
       setRankerModel(loadedModel);
     } catch (error) {
-      console.log("Initialising new model");
-      const model = setupModel();
-      setRankerModel(model);
+      // console.log("Initialising new model");
+      // const model = setupModel();
+      // setRankerModel(model);
     }
-  };
-
-  const fitModel = async (trainingSamples: ImageViewModel[]) => {
-    if (!rankerModel) return;
-
-    const { trainingTensors, labelTensors } =
-      buildTrainingBatch(trainingSamples);
-
-    // fit model
-    setIsTraining(true);
-    const trainingHistory = await rankerModel.fit(
-      trainingTensors,
-      labelTensors,
-      {
-        epochs: 10,
-        shuffle: true,
-        callbacks: {
-          onEpochEnd(epoch, logs) {
-            console.log(`Epoch: ${epoch} ==> Loss:`, logs);
-          },
-
-          async onTrainEnd() {
-            // save model
-            await saveModel();
-
-            // notify frontend
-            setIsTraining(false);
-          },
-        },
-      }
-    );
-
-    return trainingHistory;
   };
 
   const buildTrainingBatch = (samples: ImageViewModel[]) => {
@@ -123,16 +90,7 @@ export const useModelTrainer = (props: useModelTrainerProps) => {
       });
 
     const batchSamples = trainingSamples.slice(0, props.trainingBatchSize);
-    const trainingTensors = tf.concat(
-      batchSamples.map((samples) => samples.features) as Array<tf.Tensor>
-    );
-
-    const labelTensors = tf.tensor2d(
-      batchSamples.map((sample) => sample.label),
-      [batchSamples.length, 1]
-    );
-
-    return { trainingTensors, labelTensors };
+    return { batchSamples };
   };
 
   const predict = async (imageFeatures: ImageExtractedFeatureTensorType) => {
@@ -146,11 +104,11 @@ export const useModelTrainer = (props: useModelTrainerProps) => {
   };
 
   return {
-    fitModel,
     loadModel,
     saveModel,
     isTraining,
     rankerModel,
+    buildTrainingBatch,
     predict,
   };
 };

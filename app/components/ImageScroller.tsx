@@ -1,7 +1,6 @@
 import { useState, PropsWithChildren, FC, createRef, useEffect } from "react";
 import { ArrowButton } from "./RoundedButton/ArrowButton";
 import { ModelStatusBtn } from "./RoundedButton/ModelStatusBtn";
-import { ImageViewModel } from "../models/ImageViewModel";
 
 export type ScrollListenerPayload = {
   activeElement: number;

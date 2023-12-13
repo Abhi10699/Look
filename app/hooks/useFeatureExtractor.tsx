@@ -12,13 +12,15 @@ export const useFeatureExtractor = () => {
   useEffect(() => {
     tf.loadGraphModel(MODEL_URL, { fromTFHub: true })
       .then((model) => {
-        console.log("[!] Feature Extractor Loaded...")
+        console.log("[!] Feature Extractor Loaded...");
         setFeatureExtractorModel(model);
       })
       .catch((err) => setModelError);
   }, []);
 
-  const extractImageFeatures = (imageRef: RefObject<HTMLImageElement>) => {
+  const extractImageFeatures = async (
+    imageRef: RefObject<HTMLImageElement>
+  ) => {
     if (!featureExtractorModel) {
       throw new Error("Feature Extractor is not loaded..");
     }
@@ -31,8 +33,11 @@ export const useFeatureExtractor = () => {
       .resizeBilinear(imageTensor, [224, 224])
       .expandDims();
 
-    const mobilenetPrediction = featureExtractorModel.predict(resizedImage);
-    return mobilenetPrediction;
+    const mobilenetPrediction = featureExtractorModel.predict(
+      resizedImage
+    ) as tf.Tensor;
+    const tensorData = await mobilenetPrediction.data();
+    return tensorData;
   };
 
   return {

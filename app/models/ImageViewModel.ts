@@ -1,5 +1,6 @@
 import { IUnsplashImage } from "../api/images/IUnsplashImageHttp";
 import { ImageExtractedFeatureTensorType } from "../hooks/useImageDatasetV2";
+import type { Tensor, tensor } from "@tensorflow/tfjs";
 
 export class ImageViewModel {
   username: string = " ";
@@ -9,7 +10,7 @@ export class ImageViewModel {
   description: string = "";
 
   // model properties
-  imageFeatureTensor!: ImageExtractedFeatureTensorType;
+  imageFeatureTensor!: Float32Array | Int32Array | Uint8Array;
   imageVisited: boolean = false;
   imageLiked: boolean = false;
   imageUsedInTraining: boolean = false;
@@ -27,7 +28,7 @@ export class ImageViewModel {
     this.likePredicted = predicted;
   }
 
-  setImageFeatureTensor(tensor: ImageExtractedFeatureTensorType) {
+  setImageFeatureTensor(tensor:  Float32Array | Int32Array | Uint8Array) {
     this.imageFeatureTensor = tensor;
   }
 
