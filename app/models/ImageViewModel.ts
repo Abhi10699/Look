@@ -1,5 +1,5 @@
 import { IUnsplashImage } from "../api/images/IUnsplashImageHttp";
-import { ImageExtractedFeatureTensorType } from "../hooks/useImageDatasetV2";
+import { ImageExtractedFeatureTensorType } from "../hooks/deprecated/useImageDatasetV2";
 import type { Tensor, tensor } from "@tensorflow/tfjs";
 
 export class ImageViewModel {

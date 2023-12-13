@@ -1,52 +1,35 @@
 "use client";
-import { useEffect, RefObject } from "react";
+import { RefObject } from "react";
 import { ImageWindow } from "./components/ImageWindow";
 import { useImageManager } from "./hooks/useImageLoader";
-import { useModelTrainer } from "./hooks/useModelTrainer";
 import { useFeatureExtractor } from "./hooks/useFeatureExtractor";
 import {
   ImageScroller,
   ScrollListenerPayload,
 } from "./components/ImageScroller";
 import { ImageViewModel } from "./models/ImageViewModel";
-import { useWebWorker } from "./hooks/useWebWorker";
-import { tensor } from "@tensorflow/tfjs";
+import { useModelHandler } from "./hooks/useModelHandler";
 
 export default function Home() {
-  const { images, triggerFetch, updateArrayField } = useImageManager();
-  const { predict, loadModel, rankerModel, buildTrainingBatch } =
-    useModelTrainer({
-      trainingBatchSize: 10,
+  const { images, triggerFetch, updateArrayField, buildTrainingBatch } =
+    useImageManager({
+      trainingBatchSize: 100,
     });
-  const featureExtractor = useFeatureExtractor();
-  const { postMessage } = useWebWorker({
-    recieveMessage(data) {
-      console.log(data);
-    },
-  });
 
-  const fitModel = async (trainingSamples: ImageViewModel[]) => {
-    const { batchSamples } = buildTrainingBatch(trainingSamples);
-    postMessage({
-      request: "TRAIN_MODEL",
-      batchSamples,
-    });
-  };
+  const { predict, train } = useModelHandler();
+  const featureExtractor = useFeatureExtractor();
 
   const handleImageLoad = async (
     imageRef: RefObject<HTMLImageElement>,
     imageData: ImageViewModel
   ) => {
-    // TODO: REFACTOR THIS MESS
     const imageFeatures = await featureExtractor.extractImageFeatures(imageRef);
     imageData.setImageFeatureTensor(imageFeatures);
 
-    const inputTensor = tensor(imageFeatures, [1, 1280]);
-    const likePrediction = await predict(inputTensor);
-
-    if (!likePrediction) return;
-
+    const likePrediction = await predict(imageFeatures);
     const willLike = likePrediction[0] > 0.75;
+
+    // this could be improved if we use key value pairs in image state..
     willLike &&
       updateArrayField((item) => {
         if (item.id == imageData.id) {
@@ -68,13 +51,11 @@ export default function Home() {
 
     totalImagesNotVisited <= 5 && triggerFetch();
 
-    const imageVisitedCount = images.length - totalImagesNotVisited;
-    const history = imageVisitedCount == 10 && (await fitModel(images));
+    // train model every 100 steps
+    if (payload.activeElement % 100 == 0) {
+      train(buildTrainingBatch());
+    }
   };
-
-  useEffect(() => {
-    loadModel();
-  }, []);
 
   if (!featureExtractor.featureExtractorModel) {
     return <div>Loading...</div>;

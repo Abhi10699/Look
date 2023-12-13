@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { IUnsplashImage } from "../api/images/IUnsplashImageHttp";
 import { ImageViewModel } from "../models/ImageViewModel";
 
-export const useImageManager = () => {
+export const useImageManager = (
+  props: { trainingBatchSize: number } = { trainingBatchSize: 10 }
+) => {
   const [images, setImages] = useState<Array<ImageViewModel>>([]);
   const [fetchCounter, setFetchCounter] = useState<number>(0);
 
@@ -42,6 +44,24 @@ export const useImageManager = () => {
     });
   };
 
+  const buildTrainingBatch = () => {
+    const samples = images.filter((sample) => !sample.imageUsedInTraining);
+
+    if (samples.length < props.trainingBatchSize) {
+      throw new Error("Not enough training samples!");
+    }
+
+    const trainingSamples = samples.map((sample) => {
+      sample.setImageUsedInTraining(true);
+      return {
+        features: sample.imageFeatureTensor,
+        label: Number(sample.imageLiked),
+      };
+    });
+
+    return trainingSamples.slice(0, props.trainingBatchSize);
+  };
+
   useEffect(() => {
     fetchImages();
   }, [fetchCounter]);
@@ -50,5 +70,6 @@ export const useImageManager = () => {
     triggerFetch,
     images,
     updateArrayField,
+    buildTrainingBatch,
   };
 };

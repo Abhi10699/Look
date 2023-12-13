@@ -1,5 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
-import { ImageViewModel } from "../models/ImageViewModel";
+import { ImageViewModel } from "../../models/ImageViewModel";
 
 export type ImageExtractedFeatureTensorType =
   | tf.Tensor<tf.Rank>
@@ -24,7 +24,7 @@ export const useImageDatasetV2 = () => {
 
     const batchSamples = trainingSamples.slice(0, batchSize);
     const trainingTensors = tf.concat(
-      batchSamples.map((samples) => samples.features) as Array<tf.Tensor>
+      batchSamples.map((samples) => samples.features)
     );
 
     const labelTensors = tf.tensor2d(

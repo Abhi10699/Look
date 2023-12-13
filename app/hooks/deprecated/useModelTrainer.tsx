@@ -1,7 +1,8 @@
 import { useState } from "react";
-import * as tf from "@tensorflow/tfjs";
 import { ImageExtractedFeatureTensorType } from "./useImageDatasetV2";
-import { ImageViewModel } from "../models/ImageViewModel";
+import { ImageViewModel } from "../../models/ImageViewModel";
+
+import * as tf from "@tensorflow/tfjs";
 
 type useModelTrainerProps = {
   trainingBatchSize: number;
@@ -9,40 +10,6 @@ type useModelTrainerProps = {
 export const useModelTrainer = (props: useModelTrainerProps) => {
   const [rankerModel, setRankerModel] = useState<tf.LayersModel>();
   const [isTraining, setIsTraining] = useState(false);
-
-  const setupModel = () => {
-    const rankingModel = tf.sequential();
-
-    rankingModel.add(
-      tf.layers.dense({
-        inputShape: [1280],
-        units: 512,
-        activation: "relu",
-      })
-    );
-
-    rankingModel.add(
-      tf.layers.dense({
-        units: 512,
-        activation: "relu",
-      })
-    );
-
-    rankingModel.add(
-      tf.layers.dense({
-        units: 1,
-        activation: "sigmoid",
-      })
-    );
-
-    rankingModel.compile({
-      loss: "binaryCrossentropy",
-      optimizer: "adam",
-      metrics: ["accuracy"],
-    });
-
-    return rankingModel;
-  };
 
   const saveModel = async () => {
     if (rankerModel) {
