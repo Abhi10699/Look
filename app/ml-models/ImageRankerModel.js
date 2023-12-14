@@ -10,11 +10,11 @@ export class ImageRankingModel {
 
     tf.loadLayersModel(this.modelSaveLocation)
       .then((model) => {
-        console.log(model);
+        console.log("Loaded Trained Model..");
         this.model = model;
       })
       .catch((_) => {
-        console.log("ERROR")
+        console.log("ERROR");
         this.model = tf.sequential({
           layers: [
             tf.layers.dense({
@@ -33,20 +33,12 @@ export class ImageRankingModel {
           metrics: ["accuracy"],
         });
 
-        this.model.save(this.modelSaveLocation);
+        this.saveModelToLocalStorage();
       });
   }
 
-  loadWeights(weights) {
-    this.model.setWeights(weights);
-  }
-
-  extractWeights() {
-    return this.model.getWeights().map((weights) => weights.arraySync());
-  }
-
-  saveModelToLocalStorage() {
-    this.model.save(this.modelSaveLocation);
+  async saveModelToLocalStorage() {
+    await this.model.save(this.modelSaveLocation);
   }
 
   async loadModelFromLocalStorage() {

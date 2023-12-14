@@ -49,8 +49,6 @@ export const useImageManager = (
       (sample) => !sample.imageUsedInTraining && sample.imageVisited
     );
 
-    console.log(samples, images);
-
     if (samples.length < props.trainingBatchSize) {
       throw new Error("Not enough training samples!");
     }

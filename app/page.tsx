@@ -10,10 +10,12 @@ import {
 import { ImageViewModel } from "./models/ImageViewModel";
 import { useModelHandler } from "./hooks/useModelHandler";
 
+const TRAINING_TRIGGER_BATCH = 5;
+
 export default function Home() {
   const { images, triggerFetch, updateArrayField, buildTrainingBatch } =
     useImageManager({
-      trainingBatchSize: 10,
+      trainingBatchSize: TRAINING_TRIGGER_BATCH,
     });
 
   const { predict, train } = useModelHandler();
@@ -52,7 +54,11 @@ export default function Home() {
     totalImagesNotVisited <= 5 && triggerFetch();
 
     // train model every 100 steps
-    if (payload.activeElement != 0 && payload.activeElement % 10 == 0 ) {
+    if (
+      payload.activeElement != 0 &&
+      payload.activeElement % TRAINING_TRIGGER_BATCH == 0
+    ) {
+      console.log("training model...");
       train(buildTrainingBatch());
     }
   };

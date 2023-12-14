@@ -1,6 +1,14 @@
-import { useState, PropsWithChildren, FC, createRef, useEffect } from "react";
+import {
+  useState,
+  PropsWithChildren,
+  FC,
+  createRef,
+  useEffect,
+  useContext,
+} from "react";
 import { ArrowButton } from "./RoundedButton/ArrowButton";
 import { ModelStatusBtn } from "./RoundedButton/ModelStatusBtn";
+import { ModelContext } from "../context/ModelContext";
 
 export type ScrollListenerPayload = {
   activeElement: number;
@@ -25,6 +33,8 @@ export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
   });
 
   const containerRef = createRef<HTMLDivElement>();
+
+  const { state, dispatch } = useContext(ModelContext);
 
   const showNewElement = () => {
     const nextElementIndex = (activeElementIndex + 1) % childrenLength;
@@ -75,8 +85,9 @@ export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
     <div className="relative overflow-hidden max-h-screen" ref={containerRef}>
       {children.map((elem) => elem)}
       <div className="sticky flex flex-col w-screen justify-center items-end my-auto bottom-10 h-fit space-y-10 px-8">
-        <ModelStatusBtn />
+        <ModelStatusBtn training={state.modelInTrainingMode} />
         <ArrowButton
+          disabled={activeElementIndex == 0}
           initial={{ y: 0 }}
           animate={{ y: 0 }}
           onClick={showPreviousElement}

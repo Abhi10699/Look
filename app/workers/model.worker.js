@@ -5,7 +5,8 @@ import { ImageRankingModel } from "../ml-models/ImageRankerModel";
 const rankerModel = new ImageRankingModel();
 
 const trainModel = async (payload) => {
-  const { batchSamples } = payload;
+  console.log("TRAINING FROM WORKER");
+  const { trainingSamples: batchSamples } = payload;
 
   // convert to tensor
   const batchInputTensors = batchSamples.map((samples) =>
@@ -20,16 +21,19 @@ const trainModel = async (payload) => {
   );
 
   await rankerModel.model.fit(trainingInputs, trainingLabels, {
-    epochs: 10,
+    epochs: 200,
     shuffle: true,
     callbacks: {
       onEpochEnd(epoch, logs) {
-        self.postMessage("TRAIN_EPOCH_UPDATE", { ...epoch, ...logs });
+        self.postMessage({
+          type: "TRAIN_EPOCH_UPDATE",
+          data: { ...epoch, ...logs },
+        });
       },
 
-      onTrainEnd() {
+      async onTrainEnd() {
         // extract the model weights
-        rankerModel.saveModelToLocalStorage();
+        await rankerModel.saveModelToLocalStorage();
         self.postMessage({ type: "TRAIN_COMPLETE" });
       },
     },
@@ -40,6 +44,10 @@ const workerEventHandler = {
   TRAIN_MODEL: (props) => trainModel(props),
 };
 
-addEventListener("message", ({ data }) =>
-  workerEventHandler[data.request](data)
-);
+console.log("WORKER INJECTED");
+
+self.addEventListener("message", (e) => {
+  if (e.data.request == "TRAIN_MODEL") {
+    trainModel({ ...e.data });
+  }
+});

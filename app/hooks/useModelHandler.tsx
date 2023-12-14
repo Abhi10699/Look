@@ -1,6 +1,7 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useContext } from "react";
 import { ImageRankingModel } from "../ml-models/ImageRankerModel";
 import { Tensor, tensor } from "@tensorflow/tfjs";
+import { ModelContext } from "../context/ModelContext";
 
 /*
 
@@ -22,15 +23,26 @@ and the worker thread.
 export const useModelHandler = () => {
   const rankerModel = useMemo(() => new ImageRankingModel(), []);
   const workerRef = useRef<Worker>();
+  const { state, dispatch } = useContext(ModelContext);
 
-  const messageHandler = (event: any) => {};
+  const messageHandler = (
+    event: MessageEvent<{ type: string; data?: any }>
+  ) => {
+    const { data: message } = event;
+    console.log(message);
+    if (message.type == "TRAIN_EPOCH_UPDATE") {
+      dispatch({ type: "SET_MODEL_MODE_TRAINING" });
+    } else if (message.type == "TRAIN_COMPLETE") {
+      dispatch({ type: "SET_MODEL_MODE_INFERENCE" });
+    }
+  };
 
   // registering the webworker
   useEffect(() => {
     workerRef.current = new Worker(
       new URL("../workers/model.worker.js", import.meta.url)
     );
-    workerRef.current.onmessage = messageHandler;
+    workerRef.current.onmessage = (e) => messageHandler(e);
 
     return () => {
       workerRef.current?.terminate();
@@ -54,7 +66,8 @@ export const useModelHandler = () => {
       label: number;
     }[]
   ) => {
-    postMessage({
+    console.log("posting message.....");
+    workerRef.current?.postMessage({
       request: "TRAIN_MODEL",
       trainingSamples,
     });
