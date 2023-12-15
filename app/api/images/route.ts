@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const api = `${UNSPLASH_BASE_API}/photos/random?count=30`;
   const imagesResponse = await fetch(api, {
     next: {
-      revalidate: 0,
+      revalidate: 10,
     },
     headers: {
       Authorization: `Client-ID ${process.env.UNSPLASH_KEY}`,
