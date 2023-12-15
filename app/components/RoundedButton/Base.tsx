@@ -9,14 +9,20 @@ export interface RoundedButtonBaseProps
 export const RoundedButtonBase = forwardRef<
   HTMLButtonElement,
   RoundedButtonBaseProps
->((props, ref) => (
-  <button
-    ref={ref}
-    className={`relative cursor-pointer w-fit p-3  text-white text-center rounded-[18px] shadow-lg stroke-white border-2 ${props.extraClasses}`}
-    {...props}
-  >
-    {props.children}
-  </button>
-));
+>((props, ref) => {
+  const { extraClasses, ...rest } = props;
+
+  return (
+    <button
+      ref={ref}
+      className={`relative cursor-pointer w-fit p-3  text-white text-center rounded-[18px] shadow-lg stroke-white border-2 ${props.extraClasses}`}
+      {...rest}
+    >
+      {props.children}
+    </button>
+  );
+});
+
+RoundedButtonBase.displayName = "RoundedButtonBase";
 
 export const RoundedButtonBaseMotion = motion(RoundedButtonBase);
