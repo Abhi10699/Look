@@ -1,5 +1,5 @@
 "use client";
-import { RefObject } from "react";
+import { RefObject, useContext, useEffect } from "react";
 import { ImageWindow } from "./components/ImageWindow";
 import { useImageManager } from "./hooks/useImageLoader";
 import { useFeatureExtractor } from "./hooks/useFeatureExtractor";
@@ -9,8 +9,10 @@ import {
 } from "./components/ImageScroller";
 import { ImageViewModel } from "./models/ImageViewModel";
 import { useModelHandler } from "./hooks/useModelHandler";
+import { useModelEvaluator } from "./hooks/useModelEvaluator";
+import { ModelContext } from "./context/ModelContext";
 
-const TRAINING_TRIGGER_BATCH = 5;
+const TRAINING_TRIGGER_BATCH = 15;
 
 export default function Home() {
   const { images, triggerFetch, updateArrayField, buildTrainingBatch } =
@@ -20,6 +22,8 @@ export default function Home() {
 
   const { predict, train } = useModelHandler();
   const featureExtractor = useFeatureExtractor();
+  const { computeModelScore } = useModelEvaluator();
+  const { dispatch, state } = useContext(ModelContext);
 
   const handleImageLoad = async (
     imageRef: RefObject<HTMLImageElement>,
@@ -41,6 +45,23 @@ export default function Home() {
       });
   };
 
+  const predictLikesForImages = async () => {
+    const willLikePromises: { [id: string]: boolean } = images
+      .filter((image) => !image.imageUsedInTraining)
+      .reduce(async (prev, curr) => {
+        const likePrediction = await predict(curr.imageFeatureTensor);
+        const willLike = likePrediction[0] > 0.75;
+        return { ...prev, [curr.id]: willLike };
+      }, {});
+
+    updateArrayField((image) => {
+      if (willLikePromises[image.id]) {
+        image.setLikePredicted(willLikePromises[image.id]);
+      }
+      return image;
+    });
+  };
+
   const handleScrollListener = async (payload: ScrollListenerPayload) => {
     if (!images.length) return;
 
@@ -53,15 +74,46 @@ export default function Home() {
 
     totalImagesNotVisited <= 5 && triggerFetch();
 
-    // train model every 100 steps
+    // train model every 100 steps, if the model already trained 10 times put the model into evaluation mode
     if (
       payload.activeElement != 0 &&
       payload.activeElement % TRAINING_TRIGGER_BATCH == 0
     ) {
-      console.log("training model...");
-      train(buildTrainingBatch());
+      // compute metrics
+      const samples = images
+        .filter((sample) => !sample.imageEvaluated)
+        .slice(0, TRAINING_TRIGGER_BATCH)
+        .map((sample) => {
+          sample.setImageEvaluated(true);
+          return sample;
+        });
+      const predictions = samples.map((sample) => Number(sample.likePredicted));
+      const groundTruths = samples.map((sample) => Number(sample.imageLiked));
+
+      const modelScore = computeModelScore(predictions, groundTruths);
+      dispatch({ type: "SET_MODEL_SCORE", payload: { score: modelScore } });
+
+      // if the model score falls below 50% we retrain this model but
+      // if we've not trained model for atlease 10 times, we have to train it again
+
+      if (state.modelOverallTrainingCount < 10 || modelScore < 0.5) {
+        train(buildTrainingBatch());
+        dispatch({ type: "SET_MODEL_MODE_TRAINING" });
+        dispatch({
+          type: "SET_MODEL_TRAINING_COUNT",
+          payload: { count: 1 },
+        });
+      } else {
+        dispatch({ type: "SET_MODEL_MODE_INFERENCE" });
+      }
     }
   };
+
+  useEffect(() => {
+    if (state.modelRefreshCounter != 0) {
+      predictLikesForImages();
+    }
+  }, [state.modelRefreshCounter]);
 
   if (!featureExtractor.featureExtractorModel) {
     return <div>Loading...</div>;

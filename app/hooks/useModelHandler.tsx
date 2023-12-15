@@ -29,11 +29,8 @@ export const useModelHandler = () => {
     event: MessageEvent<{ type: string; data?: any }>
   ) => {
     const { data: message } = event;
-    console.log(message);
-    if (message.type == "TRAIN_EPOCH_UPDATE") {
-      dispatch({ type: "SET_MODEL_MODE_TRAINING" });
-    } else if (message.type == "TRAIN_COMPLETE") {
-      dispatch({ type: "SET_MODEL_MODE_INFERENCE" });
+    if (message.type == "TRAIN_COMPLETE") {
+      dispatch({ type: "INCREMENT_MODEL_REFRESH_COUNTER" });
     }
   };
 
@@ -43,6 +40,16 @@ export const useModelHandler = () => {
       new URL("../workers/model.worker.js", import.meta.url)
     );
     workerRef.current.onmessage = (e) => messageHandler(e);
+
+    // get model training count from localstorage
+
+    const trainingCount =
+      Number(localStorage.getItem("modelOverallTrainingCount")) || 0;
+
+    dispatch({
+      type: "SET_MODEL_TRAINING_COUNT",
+      payload: { count: trainingCount },
+    });
 
     return () => {
       workerRef.current?.terminate();
@@ -66,10 +73,15 @@ export const useModelHandler = () => {
       label: number;
     }[]
   ) => {
-    console.log("posting message.....");
     workerRef.current?.postMessage({
       request: "TRAIN_MODEL",
       trainingSamples,
+    });
+
+    // increment count
+
+    dispatch({
+      type: "INCREMENT_MODEL_TRAINING_COUNT",
     });
   };
   return { predict, train };

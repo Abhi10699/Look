@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   createContext,
@@ -11,6 +11,9 @@ import {
 interface IModelContext {
   modelEvents: any[];
   modelInTrainingMode: boolean;
+  modelOverallTrainingCount: number;
+  modelScore: number;
+  modelRefreshCounter: number;
 }
 
 type action = {
@@ -18,9 +21,12 @@ type action = {
   payload?: any;
 };
 
-const defaultContext = {
+const defaultContext: IModelContext = {
   modelEvents: [],
-  modelInTrainingMode: false,
+  modelInTrainingMode: true,
+  modelOverallTrainingCount: 0,
+  modelScore: 0,
+  modelRefreshCounter: 0,
 };
 
 export const ModelContext = createContext<{
@@ -38,11 +44,32 @@ function modelContextReducer(
   action: action
 ): IModelContext {
   switch (action.type) {
+    // MODEL
     case "SET_MODEL_MODE_TRAINING":
       return { ...state, modelInTrainingMode: true };
 
     case "SET_MODEL_MODE_INFERENCE":
       return { ...state, modelInTrainingMode: false };
+
+    // TRAINING COUNT
+    case "SET_MODEL_TRAINING_COUNT":
+      return { ...state, modelOverallTrainingCount: action.payload?.count };
+
+    case "INCREMENT_MODEL_TRAINING_COUNT":
+      return {
+        ...state,
+        modelOverallTrainingCount: state.modelOverallTrainingCount + 1,
+      };
+
+    case "INCREMENT_MODEL_REFRESH_COUNTER":
+      return {
+        ...state,
+        modelRefreshCounter: state.modelRefreshCounter + 1,
+      };
+
+    // SCORE
+    case "SET_MODEL_SCORE":
+      return { ...state, modelScore: action.payload?.score };
 
     default:
       return state;

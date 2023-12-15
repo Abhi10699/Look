@@ -14,6 +14,7 @@ export class ImageViewModel {
   imageVisited: boolean = false;
   imageLiked: boolean = false;
   imageUsedInTraining: boolean = false;
+  imageEvaluated: boolean = false;
 
   static mapFromHttpResponse(response: IUnsplashImage): ImageViewModel {
     const model = new ImageViewModel();
@@ -28,7 +29,7 @@ export class ImageViewModel {
     this.likePredicted = predicted;
   }
 
-  setImageFeatureTensor(tensor:  Float32Array | Int32Array | Uint8Array) {
+  setImageFeatureTensor(tensor: Float32Array | Int32Array | Uint8Array) {
     this.imageFeatureTensor = tensor;
   }
 
@@ -42,5 +43,9 @@ export class ImageViewModel {
 
   setImageUsedInTraining(trained: boolean) {
     this.imageUsedInTraining = trained;
+  }
+
+  setImageEvaluated(status: boolean) {
+    this.imageEvaluated = status;
   }
 }

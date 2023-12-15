@@ -10,15 +10,17 @@ export class ImageRankingModel {
 
     tf.loadLayersModel(this.modelSaveLocation)
       .then((model) => {
-        console.log("Loaded Trained Model..");
         this.model = model;
       })
       .catch((_) => {
-        console.log("ERROR");
         this.model = tf.sequential({
           layers: [
             tf.layers.dense({
               inputShape: [1280],
+              units: 128,
+              activation: "relu",
+            }),
+            tf.layers.dense({
               units: 1,
               activation: "sigmoid",
             }),
