@@ -12,6 +12,7 @@ export const useImageManager = (
     const images = (
       await fetch(`/api/images`, {
         method: "GET",
+        cache: "no-store"
       })
     ).json();
 
