@@ -60,8 +60,6 @@ export const useModelEvaluator = () => {
   };
 
   return {
-    calculateAveragePrecision,
-    calculatePrecisionRecall,
     computeModelScore,
   };
 };

@@ -1,12 +1,15 @@
-import { FC, useState, createRef, RefObject } from "react";
-import { HeartButton } from "./RoundedButton/HeartButton";
-import { IUnsplashImage } from "../api/images/IUnsplashImageHttp";
+import { FC, useState, createRef, RefObject, useEffect } from "react";
+import { ImageViewModel } from "../models/ImageViewModel";
+import { ImageLikeBtn } from "./ImageLikeBtn";
 
 type ImageWindowProps = {
-  imageData: IUnsplashImage;
+  imageData: ImageViewModel;
   // emitters
-  imageLiked: (value: number) => any;
-  onImageLoaded: (imageRef: RefObject<HTMLImageElement>) => any;
+  imageLiked?: (imageData: ImageViewModel, liked: boolean) => any;
+  onImageLoaded: (
+    imageRef: RefObject<HTMLImageElement>,
+    imagData: ImageViewModel
+  ) => any;
 };
 
 export const ImageWindow: FC<ImageWindowProps> = (props) => {
@@ -16,31 +19,42 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
   const handleLike = () => {
     setLiked((previous) => {
       const newVal = !previous;
-      props.imageLiked(Number(newVal));
+      if (props.imageLiked) {
+        props.imageLiked(props.imageData, newVal);
+      }
+      props.imageData.setImageLiked(newVal);
       return newVal;
     });
   };
 
   return (
-    <div className="h-screen bg-black flex flex-col justify-center relative">
-      <img
-        onDoubleClick={handleLike}
-        className="object-fill min-h-fit"
-        onLoad={(_) => props.onImageLoaded(imageRef)}
-        src={props.imageData.urls.regular}
-        alt={props.imageData.description || ""}
-        ref={imageRef}
-        crossOrigin="anonymous"
-      />
-      <div className="absolute bottom-0 w-screen h-[210px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
-        <div className="px-9 mt-16">
+    <div className="min-h-screen bg-black flex flex-col justify-center relative">
+      <div className="flex items-center justify-center h-full">
+        <img
+          onDoubleClick={handleLike}
+          className="object-fill max-h-screen max-w-screen"
+          onLoad={(_) => props.onImageLoaded(imageRef, props.imageData)}
+          src={props.imageData.source}
+          alt={props.imageData.description || ""}
+          ref={imageRef}
+          crossOrigin="anonymous"
+        />
+      </div>
+      <div className="absolute w-screen bottom-0 h-[150px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
+        <div className="px-9">
           <div className="space-y-1 flex flex-col">
-            <h3 className="font-black text-white text-2xl">{props.imageData.user.name}</h3>
-            <span className="text-slate-300">#toronto #city #skyline</span>
+            <h3 className="font-black text-white text-2xl">
+              {props.imageData.username}
+            </h3>
+            <span className="text-slate-300">
+              {props.imageData.description}
+            </span>
           </div>
-          <button className="mt-3 text-white w-fit border-2 stroke-white rounded-[8px] px-7 py-2 font-black text-[16px]">
-            Like
-          </button>
+          <ImageLikeBtn
+            onClick={handleLike}
+            liked={liked}
+            likepredicted={props.imageData.likePredicted}
+          />
         </div>
       </div>
     </div>

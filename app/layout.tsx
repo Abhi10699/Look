@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, DM_Sans } from "next/font/google";
-import "./globals.css";
 import { Navbar } from "./components/Navbar";
+import { ModelContextProvider } from "./context/ModelContext";
 
-const inter = Inter({ subsets: ["latin"] });
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Look",
@@ -18,10 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="container mx-auto lg:w-2/3 w-screen">
+        <ModelContextProvider>
           <Navbar />
           {children}
-        </div>
+        </ModelContextProvider>
       </body>
     </html>
   );
