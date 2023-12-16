@@ -96,7 +96,7 @@ export default function Home() {
       // if the model score falls below 50% we retrain this model but
       // if we've not trained model for atlease 10 times, we have to train it again
 
-      if (state.modelOverallTrainingCount < 10 || modelScore < 0.5) {
+      if (state.modelOverallTrainingCount < 5 || modelScore < 0.5) {
         train(buildTrainingBatch());
         dispatch({ type: "SET_MODEL_MODE_TRAINING" });
         dispatch({
