@@ -35,12 +35,12 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
           className="object-fill max-h-screen max-w-screen"
           onLoad={(_) => props.onImageLoaded(imageRef, props.imageData)}
           src={props.imageData.source}
-          alt={props.imageData.description || ""}
+          alt={props.imageData.description || "No Description"}
           ref={imageRef}
           crossOrigin="anonymous"
         />
       </div>
-      <div className="absolute w-screen bottom-0 h-[150px] bg-gradient-to-t from-[rgba(0,0,0,0.64)] to-transparent">
+      <div className="absolute mx-auto bottom-0 h-[150px] z-10">
         <div className="px-9">
           <div className="space-y-1 flex flex-col">
             <h3 className="font-black text-white text-2xl">

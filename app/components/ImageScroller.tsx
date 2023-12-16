@@ -85,7 +85,11 @@ export const ImageScroller: FC<PropsWithChildren<ImageScrollerProps>> = ({
     <div className="relative overflow-hidden max-h-screen" ref={containerRef}>
       {children.map((elem) => elem)}
       <div className="sticky flex flex-col w-screen justify-center items-end my-auto bottom-10 h-fit space-y-10 px-8">
-        <ModelStatusBtn training={state.modelInTrainingMode} score={state.modelScore}/>
+        <ModelStatusBtn
+          modelTrainCount={state.modelOverallTrainingCount}
+          training={state.modelInTrainingMode}
+          score={state.modelScore}
+        />
         <ArrowButton
           disabled={activeElementIndex == 0}
           initial={{ y: 0 }}

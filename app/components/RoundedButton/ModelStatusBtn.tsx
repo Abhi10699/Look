@@ -5,6 +5,7 @@ interface SpringNextImageButtonProps extends SpringButtonBaseProps {
   inverted?: boolean;
   training: boolean;
   score: number;
+  modelTrainCount: number;
 }
 
 export const ModelStatusBtn: FC<SpringNextImageButtonProps> = (props) => {
@@ -30,37 +31,64 @@ export const ModelStatusBtn: FC<SpringNextImageButtonProps> = (props) => {
             <span className="font-normal flex flex-col items-start">
               Model Status:{" "}
               <span
-                className={`${
-                  props.training ? "text-green-500" : "text-yellow-500"
-                } font-bold`}
+                className={`${props.training ? "text-green-500" : "text-yellow-500"
+                  } font-bold`}
               >
                 {props.training ? "Observing.. 👀" : "Evaluating ✨"}
               </span>
+
+
+              {
+                props.modelTrainCount == 0 &&
+                <span className="text-gray-400 text-xs text-left">
+                  *The model has not been trained yet, please checkout atleast 15 pictures and like them if you feel like to initiate the model
+                </span>
+              }
+
             </span>
 
             {/* Metrics */}
 
-            <span className="flex flex-col items-start space-y-1">
-              Score:{" "}
-              {props.score > 0 && (
-                <>
+            {props.modelTrainCount > 0 &&
+
+              <>
+                <span className="flex flex-col items-start space-y-1">
+                  Training Count:{" "}
                   <span className="font-bold">
-                    {Number(props.score?.toFixed(4)) * 100}%
+                    {Number(props.modelTrainCount) || 0}
                   </span>
+
                   <span className="text-gray-400 text-xs text-left">
-                    The model is good at predicting your prefrence{" "}
-                    <b>{Number(props.score?.toFixed(4)) * 100}%</b> of the
-                    times.
+                    {props.modelTrainCount == 0 && "Please checkout atleast 15 images to initialize the model"}
                   </span>
-                </>
-              )}
-              {props.score == 0 && (
-                <span className="text-gray-400 text-xs text-left">
-                  Please checkout atleast 15 images to get the evaluation score.
                 </span>
-              )}
-            </span>
-            {/*  */}
+
+
+                {/* Metrics */}
+
+                <span className="flex flex-col items-start space-y-1">
+                  Score:{" "}
+                  {props.score > 0 && (
+                    <>
+                      <span className="font-bold">
+                        {Number(props.score?.toFixed(4)) * 100}%
+                      </span>
+                      <span className="text-gray-400 text-xs text-left">
+                        The model is good at predicting your prefrence{" "}
+                        <b>{Number(props.score?.toFixed(4)) * 100}%</b> of the
+                        times.
+                      </span>
+                    </>
+                  )}
+                  {props.score == 0 && (
+                    <span className="text-gray-400 text-xs text-left">
+                      Please checkout atleast 15 images to get the evaluation score.
+                    </span>
+                  )}
+                </span>
+              </>
+            }
+
           </div>
         </div>
       )}
