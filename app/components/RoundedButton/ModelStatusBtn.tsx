@@ -41,7 +41,7 @@ export const ModelStatusBtn: FC<SpringNextImageButtonProps> = (props) => {
               {
                 props.modelTrainCount == 0 &&
                 <span className="text-gray-400 text-xs text-left">
-                  *The model hasn't been trained yet, please checkout atleast 15 pictures and like them if you feel like to initiate the model
+                  *The model has not been trained yet, please checkout atleast 15 pictures and like them if you feel like to initiate the model
                 </span>
               }
 
