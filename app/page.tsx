@@ -110,6 +110,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    console.log(state.modelRefreshCounter)
     if (state.modelRefreshCounter != 0) {
       predictLikesForImages();
     }

@@ -8,6 +8,8 @@ export class ImageViewModel {
   likePredicted = false;
   source: string = "";
   description: string = "";
+  tags = "No Tags";
+
 
   // model properties
   imageFeatureTensor!: Float32Array | Int32Array | Uint8Array;
@@ -22,6 +24,9 @@ export class ImageViewModel {
     model.id = response.id;
     model.source = response.urls.regular;
     model.username = response.user.username;
+    if(response.topic_submissions) {
+      model.tags = Object.keys(response.topic_submissions).map(key => `#${key}`).join(" ")
+    }
     return model;
   }
 
