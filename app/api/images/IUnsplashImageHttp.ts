@@ -18,6 +18,12 @@ export interface IUnsplashImage {
   current_user_collections: Array<IUnsplashUserCollection>;
   urls: IUnsplashImageUrls;
   links: IUnsplashLinks;
+  topic_submissions: {
+    [topic: string]: {
+      approved: boolean;
+      approved_on: string;
+    }
+  }
   user: IUnsplashUser;
 }
 

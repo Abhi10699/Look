@@ -40,7 +40,7 @@ export const ImageWindow: FC<ImageWindowProps> = (props) => {
           crossOrigin="anonymous"
         />
       </div>
-      <div className="absolute mx-auto bottom-0 h-[150px] z-10">
+      <div className="absolute mx-auto bottom-0 h-[150px]">
         <div className="px-9">
           <div className="space-y-1 flex flex-col">
             <h3 className="font-black text-white text-2xl">
